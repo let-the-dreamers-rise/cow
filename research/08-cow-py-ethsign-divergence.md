@@ -67,6 +67,29 @@ The settlement contract (`GPv2Signing`) and the reference TypeScript SDK do the 
 
 Test runs on the branch: `tests/contracts` 71 passed; whole suite minus e2e 243 passed, 5 skipped. Lint: `ruff check`/`ruff format` clean on the changed test files; `sign.py` carries five pre-existing `UP0xx` findings on untouched lines (present at `HEAD` too), left alone to keep the diff minimal.
 
+
+## Extension done on 19 October (afternoon): shared corpus v2 and live orders
+
+**Generator.** `tools/conformance-gen` in cow-rs (satya's PR #63) now has a `v2.rs` module that emits `conformance_vectors.v2.json` next to the v1 file (v1 regenerates byte-identical). Built and run here against the same pinned services crates. v2 contains, all computed by services' own code:
+
+| Section | Vectors | What it pins |
+|---|---|---|
+| chains | 10 | domain separator, EIP-712 and EthSign digests, signatures and UID of the base order on every chain the orderbook runs on (1, 100, 42161, 8453, 56, 137, 43114, 59144, 57073, 9745) |
+| partially_fillable_orders | 2 | sell and buy orders with `partiallyFillable = true` |
+| single_cancellations | 3 | `OrderCancellation(bytes orderUid)` struct hash, digests, signatures (the type behind `DELETE /api/v1/orders/{uid}`) |
+| batch_cancellations | 3 | `OrderCancellations(bytes[] orderUids)` for 1, 2 and 3 UIDs (the type behind `DELETE /api/v1/orders`) |
+| app_data | 7 | keccak of the exact bytes, the CIDv1 the orderbook derives, and whether `app_data::Validator` accepts it: cow-py's exact default document, its unescaped-UTF-8 twin, `{}`, a partner-fee-plus-hooks document, unsorted keys, and `{` |
+
+**cow-py against v2** (`tests/contracts/test_conformance_vectors_v2.py`): 23 passed, 3 xfailed (strict).
+
+- All ten chains match: cow-py's `Chain` enum and `domain()` produce the same separators, digests, signatures and UIDs as services.
+- Partially fillable orders match.
+- Batch cancellations match under both schemes (with the ETHSIGN fix).
+- App-data: hash and CID match on all seven documents, and cow-py's shipped default document is byte-identical to the vector, hashes to the `DEFAULT_APP_DATA_HASH` constant, and is accepted by services' validator. The escaped-versus-UTF-8 pair shows the hash is over bytes, which is why a client must upload exactly the string it hashed.
+- **Gap, documented as a strict xfail:** cow-py has no `OrderCancellation(bytes orderUid)` type. `hash_order_cancellation` and `sign_order_cancellation` sign the batch type with a one-element list, which is right for the batch endpoint cow-py wraps and wrong for the single-order endpoint. Not a bug in the shipped flow; a missing feature with a test waiting for it.
+
+**Live orders.** See `research/09-cow-py-live-order-check.md`: 11,653 open orders from the newest auction on each of the ten chains, every one matching on UID and ECDSA owner recovery with the fixed cow-py, including 11 real ETHSIGN orders.
+
 ## Two smaller things seen on the way (not in the patch)
 
 1. `hash_order_cancellation(s)` return `HexBytes.hex()`, which has no `0x` prefix on hexbytes >= 1.0 while the docstring says "hex-encoded"; `hash_order` returns bytes. Inconsistent return types in the same module.

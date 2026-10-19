@@ -1,6 +1,6 @@
 # Draft forum post (Technical category, not Grants)
 
-Title: cow-py: ETHSIGN orders are signed over the unprefixed EIP-712 digest (0/19 services vectors), fix and conformance test attached
+Title: cow-py: ETHSIGN orders signed over the unprefixed digest (0/19 services vectors), plus a shared services-generated corpus for cow-py and cow-rs
 
 While checking the Python SDK against the services-generated conformance vectors from the cow-rs grant (cowdao-grants/cow-rs PR #63, services pinned at `df6a14b`), cow-py matched on everything except one scheme.
 
@@ -12,15 +12,19 @@ While checking the Python SDK against the services-generated conformance vectors
 
 **Cause.** `cowdao_cowpy/contracts/sign.py` signs `hash_typed_data(...)` directly for every scheme; `scheme` only labels the output. services' `hashed_ethsign_message` (and `GPv2Signing`, and the TS SDK via `signer.signMessage(arrayify(hashTypedData(...)))`) sign `keccak256("\x19Ethereum Signed Message:\n32" || eip712_digest)` for EthSign. Cancellations under ETHSIGN go through the same path.
 
-**Impact.** `swap_tokens` hard-codes EIP712, so the default flow is fine. Any caller using ETHSIGN (wallets that only expose `eth_sign`) gets `WrongOwner` from the orderbook. The existing `test_sign_order[ETHSIGN]` only checks that `v` is `1b`/`1c`, and `test_sign_order_cancellation[ETHSIGN]` recovers against the unprefixed hash, so neither could catch it.
+**Impact.** `swap_tokens` hard-codes EIP712, so the default flow is fine. Any caller using ETHSIGN (wallets that only expose `eth_sign`) gets `WrongOwner` from the orderbook. The existing `test_sign_order[ETHSIGN]` only checks that `v` is `1b`/`1c`, so it could not catch it. ETHSIGN is in real use: 11 of the 11,653 open orders in the newest auction across the ten chains were signed with it.
 
-**PR:** <link> adds the fixture and a parametrised conformance test (fails 19 before, passes after), fixes `ecdsa_sign_typed_data` to honour the scheme, and tightens the two existing tests. `tests/contracts`: 71 passed. No change for EIP712 callers.
+**PR to cow-py:** <link>. Fixes `ecdsa_sign_typed_data` to honour the scheme, adds the v1 fixture with a parametrised test (fails 19 before, passes after), and tightens the two existing tests. No change for EIP712 callers.
 
-Harness and write-up: <link to cow repo>. Happy to add the generator side (shared corpus for cow-py and cow-rs from the same services pin, plus appData and cancellation vectors) if a maintainer wants it; that is the only part that would be grant-sized.
+**Shared corpus (v2), proposed to cow-rs:** <link>. A `v2.rs` module in the same generator, same services pin, emitting next to v1: domain separators, digests, signatures and UIDs on all ten orderbook chains; partially fillable orders; `OrderCancellation` and `OrderCancellations` struct hashes under both schemes; app-data hash, CIDv1 and `Validator` results for seven documents. cow-py consumes it in a second test file: 22 pass, and one strict xfail records that cow-py lacks the single-order cancellation type. cow-rs can consume the same file in its M2 test.
+
+**Live check.** With the fix, cow-py's UID derivation and both ECDSA digests agree with the orderbook on all 11,653 open orders across the ten chains (auction bodies from the public solver-instances bucket, re-verified against `GET /orders/{uid}` where the auction DTO differs from the signed order). One doc note from that: the auction DTO carries remaining amounts and omits the signed fee, so anyone rebuilding orders from the solver feed needs `fullSellAmount`/`fullBuyAmount` and the orderbook record.
+
+Harness and write-up: <link to cow repo>.
 
 ---
 
 Posting notes for the author:
-- Post in Technical (`tech-spells`), not the grants category. Tag nobody in the first post; reply to @mfw78 and @bleu only if they engage.
-- Open the PR first, then post with the link. New accounts cannot post more than two links; keep it to the PR and the repo.
-- Do not mention a grant in the title. The last paragraph is the only place it appears, framed as "if a maintainer wants it".
+- Post in Technical (`tech-spells`), not the grants category. Tag nobody in the first post; reply to @mfw78, @bleu or @ss1738 only if they engage.
+- Open both PRs first, then post with the links. New accounts cannot post more than two links; drop the repo link if needed.
+- Do not mention a grant anywhere in the post. If a maintainer asks what else is worth doing, the answer is: consuming v2 in cow-rs's M2 test, adding the single-cancellation type to cow-py, and regenerating both fixtures whenever the services pin moves.

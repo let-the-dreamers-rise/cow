@@ -1,8 +1,8 @@
 From 8c7ad73626dc26b71d12790aeb321035e7c347a7 Mon Sep 17 00:00:00 2001
 From: Ashwin Goyal <letthedreamersrise@gmail.com>
 Date: Mon, 19 Oct 2026 16:04:08 +0000
-Subject: [PATCH] fix(sign): sign ETHSIGN over the EIP-191-prefixed digest; add
- services conformance vectors
+Subject: [PATCH 1/2] fix(sign): sign ETHSIGN over the EIP-191-prefixed digest;
+ add services conformance vectors
 
 ecdsa_sign_typed_data signed the raw EIP-712 digest for every scheme, so
 ETHSIGN orders and cancellations recovered to the wrong owner. services,
