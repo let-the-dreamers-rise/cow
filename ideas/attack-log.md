@@ -2,19 +2,22 @@
 
 Method: for each idea, state what it is, who would use it, what it would cost the DAO, then attack it the way the people who actually decide would. The attackers are real and quoted: Sov's "who would use it" (3612, 3619), mfw78's "a day or two of dedicated, effective time" (3569) and "golden vectors written by the core team is significantly more appropriate than having 3rd party assembled work" (3612, 3620), the services maintainers' "core team only unless labelled", and the delegates who vote on CIPs. Keep only what survives, and say what it is worth in money and in hours.
 
-Three facts frame everything, all from October 2026:
+Four facts frame everything, all from October 2026:
 
 1. The committee told a prospective applicant on 2 Oct: "the committee isn't publishing new problem areas or RFPs right now, so there isn't a specific area we can point you to... we wouldn't recommend investing in a research sprint in the expectation of a grant" (Sov, 3606).
 2. On 1 Oct a brand-new account was nonetheless approved for $2,000 (satya_98402, 3569) after six weeks of visible unpaid work on exactly the thing mfw78 pointed at.
 3. Thirteen other new accounts applied between May and 18 Oct. None was funded. Six were rejected within 48 hours.
+4. The committee's own planning site (see `research/07-what-is-actually-open-oct-2026.md`) says "inbound applications remain open", shows it spent under a quarter of its 2025 budget, and records two core-team asks that were never delivered: a Composable CoW **Order Decoder** (named in CIP-82) and **SDK-level warnings with USD estimates** (Anxo, Oct 2025, open `cow-sdk` issue #309).
 
-So the base rate for a cold application is zero, the base rate for a six-week courtship on a maintainer-chosen target is one for one, and the prize at the end of the courtship is about $2,000.
+So the base rate for a cold application is zero, the base rate for a six-week courtship on a maintainer-chosen target is one for one, and the prize at the end of the courtship is about $2,000. Money is not the constraint; a named internal requester and a reviewer are.
 
 ## Scoreboard
 
 | # | Idea | Would they pay? | Would I pay? | Verdict |
 |---|---|---|---|---|
-| C1 | cow-py conformance corpus and reproducible E2E (the satya shape, in Python) | Yes, about $1,500 to $2,500, after a discovery thread | Only if a real discrepancy is found first | **Survives. Do the discovery first.** |
+| D1 | Composable CoW Order Decoder (Luis's 2025 ask, CIP-82 priority, RFP drafted and never posted) | Yes if Luis or anxolin confirms it is still wanted and bleu's indexer does not already cover it | Yes | **Survives. Best idea on the board, pending one question.** |
+| D2 | Quote warnings and USD estimates in cow-sdk (Anxo's own grant idea, issue #309 open) | Yes if shoom3301 or le_zhy will review; priced by their internal-time estimate | Yes | **Survives. Entry is a PR, not a proposal.** |
+| C1 | cow-py conformance corpus and reproducible E2E (the satya shape, in Python) | Yes, about $1,500 to $2,500, after a discovery thread | Only if a real discrepancy is found first | Survives as the cheap fallback |
 | C2 | TWAP-for-EOAs execution quality study with open dataset | Only if anxolin or the CoW Swap product lead says so in-thread | Yes, as a product team | Runner-up, contingent |
 | C3 | Merged PRs on open issues, then retro | Yes, $80 to $100 per merged PR | Yes | **Do regardless; it is the entry fee** |
 | C4 | EBBO self-certificate CLI for users | No (competition-adjacent, duplicates private `ebbo`) | Maybe as a user | Killed |
@@ -29,8 +32,51 @@ So the base rate for a cold application is zero, the base rate for a six-week co
 | C13 | Safe EIP-1271 watch tower, or any programmatic-order consumer | No sponsor; bleu's own version got silence | No | Killed |
 | C14 | Any consumer app or integration without existing users | No; zero funded in two years | No | Killed |
 | C15 | A second application in the solver-testing lane (conformance vectors, readiness, parity) | No; three are already queued and the doctrine is set | No | Killed |
+| D3 | Methane (ERC-4337 gas abstraction on Shepherd) | It is mfw78's own pipeline item | Not for an outsider | Killed; offer help in the Shepherd thread after 23 Oct if at all |
+| D4 | CoWPath integration wizard | mfw78's, private one-pager, docs lane closed to grants | No | Killed |
+| D5 | Quote API v2 / Text to Trade | Ideation rows with no document; quote work shipped internally (streaming quote API, x402.cow.fi) | No | Killed |
+| D6 | Propose & Earn idea bounty (500 / 1,000 xDAI) | Drafted June 2026, never posted, pipeline says Cancelled | A forum post costs nothing | Killed as income; post one idea anyway |
+| D7 | Volume-based integration deal ($50K structure: $10K on completion, then $10K/$15K/$15K at $100M/$300M/$500M) | Yes, to a wallet or protocol with users | Yes | Killed for a solo builder with no distribution |
+| D8 | Explorer "trigger refund" button for expired native-ETH orders; docs and competition-rules fixes | As merged PRs only | Yes | Folded into C3 |
 
-Expected money from the surviving path over the next three months: $0 to about $2,500, for 40 to 80 hours, with the $2,000 outcome requiring a maintainer to say yes in public. The relationship is worth more than the cheque: every repeat grantee's second grant was bigger and faster than their first.
+Expected money from the surviving path over the next three months: $0 to about $2,500 on C1 alone; D1 and D2 are the first ideas in this log with a named internal requester, so the ceiling is higher (the Playground RFPs that came from core asks paid $7,500 to $27,000), but each needs one public yes from a core developer before any time is spent. The relationship is worth more than the cheque: every repeat grantee's second grant was bigger and faster than their first.
+
+## D1. Composable CoW Order Decoder (survives; best on the board)
+
+**What.** Luis (core team) asked for it in October 2025: "TWAP and programmatic orders currently only show appData strings in block explorers, making debugging nearly impossible. Research shows CoW's existing appData SDK provides most of the infrastructure needed. Etherscan and other protocols have similar decoder tools with strong usage." The Q4 2025 Work Plan listed it as a "Ready to Launch" RFP. It was never posted. CIP-82's first 2026 priority reads "Documentation, SDKs, Order Decoder, and Playground tools." Deliverable: an open-source decoder (library function in cow-sdk plus a static page) that takes an order UID, a ComposableCoW `staticInput`/handler or a settlement tx and renders TWAP, stop-loss, GAT/TAT and hook parameters in plain fields, with links to the parts. Price by the committee's own yardstick: a few days of effective time, $3,000 to $6,000.
+
+**Who would use it.** Luis asked. Integrators debugging TWAPs (now open to every EOA since 30 Sept). Shepherd (mfw78) and bleu's Programmatic Orders API produce exactly the objects a decoder reads. Support staff, whose "manual investigation" Anxo complained about.
+
+**Attack: "bleu's Programmatic Orders API already indexes conditional orders and their parts; the decoder is a UI over it."**
+Partly true, and it is the first thing to check. The API maps generators to parts and owners; it does not render appData or `staticInput` for a human, and it is not in the Explorer. If the gap is only presentation, the grant is small and should say so; if the Explorer team plans it, it is core-owned and dead. The answer costs one post in thread 3346 or a question to anxolin.
+
+**Attack: "The Execution Evidence Lab / Settlement Decoder (3565) was rejected a month ago with 'CoW Explorer already covers most of what the decoder would surface'."**
+That proposal decoded ordinary settlements for a lay audience, plus videos. This one decodes the programmatic-order layer the Explorer does not show, for developers, and the requester is internal. Say that in the first paragraph.
+
+**Attack: "Docs and developer-facing tooling are core-owned since June."**
+Sov closed integration documentation. A decoder is a tool, and the committee's own 2026 priority list names it. If the frontend team wants it inside the Explorer, offer to deliver it as a PR to the cowswap monorepo with their review, the way crutch12's bundle work went.
+
+**Attack: "Reads as an outsider guessing at an internal wish list."**
+Build the appData/staticInput decoder for TWAP first (a day with the SDK), post it with three real mainnet orders decoded, and ask Luis in the thread whether the 2025 RFP is still wanted. That is the satya move with a sponsor already on record.
+
+**Verdict.** Survives. Highest expected value on the board because it is the only idea here with a written internal request, a CIP citation, and no delivered answer. Gate: one public confirmation from Luis, anxolin or mfw78 that it is still wanted and not already planned in the Explorer.
+
+## D2. Quote warnings and USD estimates in cow-sdk (survives)
+
+**What.** Anxo, 17 Oct 2025, on the council's own action plan: "We don't have USD estimations, and therefore, we don't include some important warnings in the result we show for CoW Swap and helped us protecting users. I leave it as a potential idea for grants to migrate warning logic to the SDK... Warnings could be one of the most impactful next thing. It would have avoided the issue AAVE had making a user sign an order at a terrible price, making the user loose $500K." `cow-sdk` issue #309 "Model warnings for quotes" (May 2025) is still open. Deliverable: port CoW Swap's price-impact, limit-price-vs-market and fee-share warnings into the trading SDK's quote result, backed by BFF USD prices, with tests and a docs page.
+
+**Who would use it.** Every integrator; the docs RFC's own evidence ("a partner couldn't determine that the buy amount field requires slippage to be packed in"; "two major integrations struggle with placing orders at reasonable limit prices"); Aave, whose user lost $500K; the frontend team, who want "Removing logic from CoW Swap, moving it to SDK and BFF, dog-fooding the SDK in CoW Swap" (Anxo, same thread).
+
+**Attack: "The frontend team owns cow-sdk and will do it themselves."**
+They have not in 17 months, and Anxo offered it to grants in writing. The committee's method for this case is known: ask shoom3301 or le_zhy for an internal-time estimate and price against it (3321, 3301). Expect $1,000 to $4,000, not more.
+
+**Attack: "It touches CoW Swap's user protection; a wrong warning is worse than none."**
+True, so the first PR is read-only: expose the inputs (USD values of sell and buy, quoted-vs-reference price gap) and a warning enum, mirrored from the exact thresholds CoW Swap uses, with the frontend team as reviewer. No new judgement calls.
+
+**Attack: "23 open PRs in cow-sdk; external PRs sit for weeks."**
+Yes. Open with a comment on #309 proposing the shape, wait for a maintainer nod, then one PR under 200 lines. This is the slowest of the three survivors and the one most likely to be absorbed internally once it is specified; that is still a good outcome for the account history.
+
+**Verdict.** Survives. Entry is a comment on issue #309 and a scoped PR, not a grant application. Apply for retro money only after the merge, citing Anxo's sentence.
 
 ## C1. cow-py conformance corpus and reproducible E2E (survives)
 
@@ -139,7 +185,8 @@ Six threads since August; one funded at $2k on the SDK side; three pending; two 
 
 ## If you still want the cheque: the exact sequence
 
-1. Week 1 to 2: fix cow-py #27 and #78 (or confirm they are already fixed and say so), run cow-py against the cow-rs corpus, write down one concrete divergence or one concrete "matches". Open a technical thread with the result. Separately, ask anxolin one question in 3346 about C2.
-2. Week 3: if a maintainer or bleu replies with interest, post the application in the current template: title "Grant Application - ...", two milestones, $1,000 each, services pinned to a commit, no upstream dependency, LGPL/MIT/GPL, Ethereum mainnet address, the T&C line with links, the "note to committee" line. If nobody replies in two weeks, "lack of response signals disinterest" (process guide) and the work is still a merged PR.
-3. Snapshot on a Monday, three-day vote, 0.0005 xDAI on Gnosis for the proposal; expect Sov's onboarding message, a 7-to-14-day review SLA, payment by the 15th of the month after the milestone.
-4. Never: an upfront payment ask, a single $20k milestone, a hackmd instead of forum text, a Gnosis address, a weekend vote, a proposal that touches scores, fees, quotes or rewards.
+1. Week 1: build the TWAP appData/staticInput decoder (D1) and decode three live mainnet orders; post it in a technical thread and ask Luis and anxolin whether the 2025 Order Decoder RFP is still wanted and whether the Explorer team plans it. Same week, comment on cow-sdk #309 with a proposed warning shape (D2). In parallel fix cow-py #27 and #78 (C1).
+2. Week 2 to 3: whichever of D1, D2, C1 gets a maintainer reply becomes the application; the others stay PRs. If none replies in two weeks, the work is still merged code and the retro path (C3) applies.
+3. When a maintainer replies with interest, post the application in the current template: title "Grant Application - ...", two milestones, $1,000 each, services pinned to a commit, no upstream dependency, LGPL/MIT/GPL, Ethereum mainnet address, the T&C line with links, the "note to committee" line. If nobody replies in two weeks, "lack of response signals disinterest" (process guide) and the work is still a merged PR.
+4. Snapshot on a Monday, three-day vote, 0.0005 xDAI on Gnosis for the proposal; expect Sov's onboarding message, a 7-to-14-day review SLA, payment by the 15th of the month after the milestone.
+5. Never: an upfront payment ask, a single $20k milestone, a hackmd instead of forum text, a Gnosis address, a weekend vote, a proposal that touches scores, fees, quotes or rewards.
