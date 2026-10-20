@@ -21,7 +21,7 @@ Ashwin Goyal, forum @[FILL], GitHub let-the-dreamers-rise
 
 cow-rs (grant approved 8 Oct 2026) and cow-py (completed 2025) now have fixtures generated from `cowprotocol/services`, but nothing keeps them current: the pin is a constant in one Rust file, cow-rs has no consumer test yet (M2 of PR #63), cow-py cannot sign the single-order cancellation type the orderbook accepts, and the solver-feed DTO that integrators rebuild orders from is undocumented. This grant finishes the loop so that a services change that alters hashing, signing, UIDs, cancellations or app-data handling fails a test in both SDKs within one regeneration, and so that both SDKs cover the full signing surface the orderbook exposes.
 
-Everything lands as pull requests into cowdao-grants repositories, so completion does not depend on any third party. Reviewer suggested: @mfw78 (as on PR #63), with @bleu for cow-py.
+Everything lands as pull requests into cowdao-grants repositories, so completion does not depend on any third party. Nothing here duplicates the open cow-rs grant (PR #63): its author keeps the consumer tests; this grant covers regeneration, cow-py's missing cancellation type, and documentation. Reviewer suggested: @mfw78 (as on PR #63), with @bleu for cow-py.
 
 ## Type of Grant
 
@@ -37,7 +37,7 @@ Milestone-based.
 
 ### Specifics
 
-**Milestone 1 ($1,200).** In cow-rs: a `just conformance-regen SERVICES_SHA` recipe that updates the pin in `Cargo.toml` and `main.rs`, regenerates v1 and v2, and fails if the fixtures changed without the pin changing; a CI job that runs the generator at the pinned sha and diffs against the committed fixtures; a `cowprotocol-signing` integration test consuming v2 (chains, partial fills, both cancellation types, app-data) alongside the v1 consumer from PR #63 M2. Deliverable: merged PRs to cowdao-grants/cow-rs, or PRs open with reviewer sign-off if merge is blocked on #63.
+**Milestone 1 ($1,200).** In cow-rs, after PR #63 lands: the v2 generator module and fixture as their own PR; a `just conformance-regen SERVICES_SHA` recipe that updates the pin in `Cargo.toml` and `main.rs` and regenerates v1 and v2; a CI job that runs the generator at the pinned sha and fails if the committed fixtures differ. Explicitly not in scope: the cow-rs consumer tests, which are Milestone 2 of PR #63 and belong to its author; the v2 fixture is offered to him for that, and this grant does not bill for it. Deliverable: merged PRs to cowdao-grants/cow-rs, or PRs open with reviewer sign-off if merge is blocked.
 
 **Milestone 2 ($1,000).** In cow-py: `hash_order_cancellation` / `sign_order_cancellation` produce the `OrderCancellation(bytes orderUid)` type and the existing batch functions keep the batch type; `OrderBookApi.delete_order` gains the single-order endpoint; the strict xfail in `test_conformance_vectors_v2.py` becomes a passing test; a CI check fails if `services_sha` differs between the two fixture files. Deliverable: merged PR to cowdao-grants/cow-py.
 
